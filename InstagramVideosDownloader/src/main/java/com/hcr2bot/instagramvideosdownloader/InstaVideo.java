@@ -17,8 +17,7 @@ import org.json.JSONObject;
 
 public class InstaVideo {
 
-    public static void downloadVideo(Context context, String postUrl) {
-
+    public static void downloadVideo(Context context, String postUrl,boolean is,Caller caller) {
         String replacedUrl;
         final String[] finalVideoUrl = new String[1];
 
@@ -65,11 +64,17 @@ public class InstaVideo {
                         finalVideoUrl[0] = Obj2.getString("video_url");
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        caller.error(e.toString());
+
                     }
+
                     Log.d("finalURL", finalVideoUrl[0]);
+                    if (is){
                     Util.download(finalVideoUrl[0], Util.RootDirectoryInstagram, context, System.currentTimeMillis() + ".mp4");
-
-
+                    caller.downloaded();
+                    }else{
+                        caller.getUrl(finalVideoUrl[0]);
+                    }
                 }
 
             }, new Response.ErrorListener() {
@@ -77,6 +82,7 @@ public class InstaVideo {
                 public void onErrorResponse(VolleyError error) {
                     Log.e("VideoURLErrors", "Something went wrong" + error);
                     Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
+                    caller.error(error.toString());
 
                 }
             });
